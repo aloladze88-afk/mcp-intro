@@ -1,3 +1,99 @@
 {
-  "topics": []
+  "topics": [
+    {
+      "id": "python-functions",
+      "title": "Python Functions",
+      "summary": "Functions group reusable instructions under a name so that code can be organised and called when needed.",
+      "prerequisites": [
+        "Variables",
+        "Basic Python syntax"
+      ],
+      "key_concepts": [
+        "Defining functions",
+        "Parameters and arguments",
+        "Return values"
+      ],
+      "common_mistakes": [
+        "Calling a function before defining it",
+        "Using print when a return value is needed"
+      ],
+      "practice_idea": "Create a function that receives two numbers and returns their total."
+    },
+    {
+      "id": "python-lists",
+      "title": "Python Lists",
+      "summary": "Lists store multiple values in one ordered and changeable collection.",
+      "prerequisites": [
+        "Variables",
+        "Basic data types"
+      ],
+      "key_concepts": [
+        "Indexes",
+        "List methods",
+        "Looping through lists"
+      ],
+      "common_mistakes": [
+        "Using an index that is outside the list",
+        "Forgetting that the first index is zero"
+      ],
+      "practice_idea": "Create a shopping list and print each item with a for loop."
+    },
+    {
+      "id": "python-dictionaries",
+      "title": "Python Dictionaries",
+      "summary": "Dictionaries store related information as key-value pairs.",
+      "prerequisites": [
+        "Variables",
+        "Lists"
+      ],
+      "key_concepts": [
+        "Keys and values",
+        "Reading and updating values",
+        "Dictionary methods"
+      ],
+      "common_mistakes": [
+        "Trying to access a key that does not exist",
+        "Using a mutable value as a dictionary key"
+      ],
+      "practice_idea": "Create a dictionary containing a student's name, course and score."
+    },
+    {
+      "id": "python-exceptions",
+      "title": "Python Exception Handling",
+      "summary": "Exception handling lets a program respond to expected errors without crashing immediately.",
+      "prerequisites": [
+        "Functions",
+        "Conditional statements"
+      ],
+      "key_concepts": [
+        "try and except",
+        "Specific exception types",
+        "else and finally"
+      ],
+      "common_mistakes": [
+        "Catching every error with a bare except",
+        "Ignoring an error without explaining or handling it"
+      ],
+      "practice_idea": "Ask for a number and handle the error when the user enters text."
+    },
+    {
+      "id": "python-classes",
+      "title": "Python Classes",
+      "summary": "Classes are blueprints used to create objects that combine data and behaviour.",
+      "prerequisites": [
+        "Functions",
+        "Dictionaries"
+      ],
+      "key_concepts": [
+        "Classes and objects",
+        "The __init__ method",
+        "Attributes and methods"
+      ],
+      "common_mistakes": [
+        "Forgetting the self parameter",
+        "Confusing a class with an object created from it"
+      ],
+      "practice_idea": "Create a Book class with title and author attributes and a describe method."
+    }
+  ]
 }

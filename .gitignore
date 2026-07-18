@@ -1,23 +1,25 @@
-# Secrets
+# Environment variables and secrets
 .env
 
-# Virtual environments
+# Python virtual environments
 .venv/
 venv/
 env/
 
-# Python cache files
+# Python cache and build files
 __pycache__/
 *.py[cod]
+*.egg-info/
+build/
+dist/
 
 # Test and tool caches
 .pytest_cache/
 .mypy_cache/
+.ruff_cache/
 
-# Editors
+# Editors and operating systems
 .vscode/
 .idea/
-
-# Operating-system files
 .DS_Store
 Thumbs.db

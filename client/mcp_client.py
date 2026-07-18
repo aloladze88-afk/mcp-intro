@@ -1,4 +1,1 @@
-"""Client for the Programming Learning MCP server.
-
-The MCP connection will be implemented in a later task.
-"""
+"""MCP client implementation will be added in a later task."""

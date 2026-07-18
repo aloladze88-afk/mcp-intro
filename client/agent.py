@@ -1,4 +1,1 @@
-"""Student-facing agent for the Programming Learning MCP server.
-
-The agent integration will be implemented in a later task.
-"""
+"""Agent integration will be added in a later task."""
