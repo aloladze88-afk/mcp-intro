@@ -1,13 +1,4 @@
-"""Student-friendly agent using information from the MCP server.
+"""Student-facing agent for the Programming Learning MCP server.
 
-The agent logic will be implemented in a later task.
+The agent integration will be implemented in a later task.
 """
-
-
-def main() -> None:
-    """Display the current agent status."""
-    print("Agent file created. Agent integration not implemented yet.")
-
-
-if __name__ == "__main__":
-    main()

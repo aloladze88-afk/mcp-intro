@@ -1,14 +1,12 @@
-"""Programming Learning MCP server.
+"""Minimal FastMCP server for programming-learning capabilities."""
 
-Task 0 only creates the project structure.
-The FastMCP server, tools, and resources will be added in later tasks.
-"""
+from fastmcp import FastMCP
 
 
-def main() -> None:
-    """Display the current project status."""
-    print("Project structure created. MCP server not implemented yet.")
+# Create the MCP server instance.
+mcp = FastMCP("Programming Learning Server")
 
 
 if __name__ == "__main__":
-    main()
+    # Start the server with FastMCP's default stdio transport.
+    mcp.run()
