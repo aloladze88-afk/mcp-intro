@@ -11,6 +11,7 @@ This beginner project demonstrates how to build a small Model Context Protocol (
 - Task 2 — Basic FastMCP server: complete
 - Task 3 — Local topic dataset: complete
 - Task 4 — First MCP tool: complete
+- Task 5 — Topic details tool: complete
 
 ## Project Structure
 
@@ -77,11 +78,11 @@ Each topic contains:
 - `common_mistakes`
 - `practice_idea`
 
-The file uses a top-level `topics` list so the MCP server can load and search the records in later tasks.
+The file uses a top-level `topics` list so the MCP server can load and search the records.
 
 ## First MCP Tool: `search_topics`
 
-The server now exposes a tool named `search_topics` using the `@mcp.tool` decorator.
+The server exposes a tool named `search_topics` using the `@mcp.tool` decorator.
 
 The tool:
 
@@ -104,6 +105,42 @@ exception
 ```
 
 A search for `functions` returns the Python Functions topic. A search for `methods` can return Lists, Dictionaries and Classes because those topics contain that key concept.
+
+## Topic Details Tool: `get_topic_details`
+
+The server now also exposes `get_topic_details`.
+
+The tool:
+
+- receives one exact topic id;
+- reads the same local topic dataset;
+- compares ids without case sensitivity;
+- returns the complete matching topic record;
+- returns a clear message for a blank or unknown id.
+
+This creates a common two-step MCP workflow:
+
+```text
+1. search_topics discovers possible topics.
+2. get_topic_details retrieves the complete selected topic.
+```
+
+Example valid id:
+
+```text
+python-functions
+```
+
+The returned dictionary includes the topic's id, title, summary, prerequisites, key concepts, common mistakes and practice idea.
+
+## Concepts to Remember
+
+- A summary tool helps discover possible results.
+- A details tool retrieves one complete record.
+- Stable ids are safer for exact lookup than titles because titles can change or contain different capitalisation.
+- `.strip()` removes accidental spaces around input.
+- `.casefold()` makes text comparison case-insensitive.
+- Returning an error dictionary is safer for an MCP client than allowing an expected lookup failure to crash the tool.
 
 ## Requirements
 
@@ -141,7 +178,7 @@ python -m json.tool data/topics.json
 
 If the JSON is valid, Python prints the formatted data. If it is invalid, Python reports the location of the syntax error.
 
-You can also check the number of topics:
+Check the number of topics:
 
 ```bash
 python -c "import json; data=json.load(open('data/topics.json')); print(len(data['topics']))"
@@ -153,16 +190,16 @@ Expected result:
 5
 ```
 
-## Validate the Server and Tool
-
-Check the Python syntax:
+## Validate the Python Server
 
 ```bash
 cd ~/mcp-intro
 python -m py_compile server/learning_server.py
 ```
 
-Start the MCP server:
+No output means the file compiled successfully.
+
+Start the server:
 
 ```bash
 python server/learning_server.py
@@ -170,17 +207,37 @@ python server/learning_server.py
 
 The server should start and wait for MCP communication. Stop it with `Ctrl+C`.
 
-To inspect the registered tool interactively, run:
+## Test the MCP Tools
+
+Open the FastMCP development interface:
 
 ```bash
+cd ~/mcp-intro
+source .venv/bin/activate
 fastmcp dev server/learning_server.py
 ```
 
-Then call `search_topics` with a query such as `functions` or `methods`.
+Test `search_topics` with:
+
+```text
+functions
+methods
+networking
+```
+
+Test `get_topic_details` with:
+
+```text
+python-functions
+PYTHON-LISTS
+unknown-topic
+```
+
+Also test it with a blank value. Valid ids should return complete topic records. Unknown and blank ids should return clear messages instead of crashing.
 
 ## Real-World Use Case
 
-A student could ask a programming tutor agent for help with methods. The agent could call `search_topics("methods")`, examine the returned summaries and key concepts, and decide whether Lists, Dictionaries or Classes is the most relevant lesson.
+A student asks an AI tutor to explain Python methods. The agent first calls `search_topics("methods")` and receives several compact candidates. It chooses `python-classes`, then calls `get_topic_details("python-classes")` to retrieve the prerequisites, full key concepts, common mistakes and practice exercise before answering the student.
 
 ## Self-Validation
 
@@ -242,3 +299,14 @@ A student could ask a programming tutor agent for help with methods. The agent c
 - [x] The tool handles blank and no-match queries clearly.
 - [x] The tool has a clear docstring.
 - [x] The tool is deterministic.
+
+### Task 5 — Topic Details Tool
+
+- [x] I implemented the `get_topic_details` tool.
+- [x] The tool receives a topic id.
+- [x] The tool returns the full topic information.
+- [x] The tool handles a blank id clearly.
+- [x] The tool handles unknown ids clearly.
+- [x] The tool has a clear docstring.
+- [x] The lookup uses stable topic ids instead of titles.
+- [x] The tool does not crash for expected invalid lookup values.

@@ -2,6 +2,7 @@
 
 import json
 from pathlib import Path
+
 from fastmcp import FastMCP
 
 
@@ -64,6 +65,25 @@ def search_topics(query: str) -> list[dict]:
         ]
 
     return matches
+
+
+@mcp.tool
+def get_topic_details(topic_id: str) -> dict:
+    """Return full information for a programming topic by its id."""
+    cleaned_topic_id = topic_id.strip().casefold()
+
+    if not cleaned_topic_id:
+        return {"message": "Please provide a non-empty topic id."}
+
+    for topic in _load_topics():
+        if topic["id"].casefold() == cleaned_topic_id:
+            return topic
+
+    return {
+        "message": (
+            f"No programming topic was found with id '{topic_id.strip()}'."
+        )
+    }
 
 
 if __name__ == "__main__":
