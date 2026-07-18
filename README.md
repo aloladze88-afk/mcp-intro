@@ -12,6 +12,7 @@ This beginner project demonstrates how to build a small Model Context Protocol (
 - Task 3 — Local topic dataset: complete
 - Task 4 — First MCP tool: complete
 - Task 5 — Topic details tool: complete
+- Task 6 — Read-only topic catalogue resource: complete
 
 ## Project Structure
 
@@ -133,6 +134,27 @@ python-functions
 
 The returned dictionary includes the topic's id, title, summary, prerequisites, key concepts, common mistakes and practice idea.
 
+## Read-Only Resource: `topics://catalog`
+
+The server exposes a resource at `topics://catalog` using the `@mcp.resource` decorator.
+
+The resource:
+
+- reads the existing topic dataset;
+- returns only each topic's `id` and `title`;
+- serialises the catalogue with `json.dumps()`;
+- returns an `application/json` response;
+- does not create, edit or delete any data.
+
+Example returned data:
+
+```json
+[
+  {"id": "python-functions", "title": "Python Functions"},
+  {"id": "python-lists", "title": "Python Lists"}
+]
+```
+
 ## Concepts to Remember
 
 - A summary tool helps discover possible results.
@@ -141,6 +163,10 @@ The returned dictionary includes the topic's id, title, summary, prerequisites, 
 - `.strip()` removes accidental spaces around input.
 - `.casefold()` makes text comparison case-insensitive.
 - Returning an error dictionary is safer for an MCP client than allowing an expected lookup failure to crash the tool.
+- Tools perform actions or lookups, while resources expose readable data.
+- A resource URI gives clients a stable address for the data.
+- Read-only resources should not modify files, records or application state.
+- `json.dumps()` converts Python data into a JSON string.
 
 ## Requirements
 
@@ -235,9 +261,34 @@ unknown-topic
 
 Also test it with a blank value. Valid ids should return complete topic records. Unknown and blank ids should return clear messages instead of crashing.
 
+List the registered resource:
+
+```bash
+fastmcp list server/learning_server.py --resources
+```
+
+Read `topics://catalog` from an MCP client or the FastMCP development interface. It should return valid JSON containing exactly the five available topic ids and titles.
+
+## Git Validation, Commit and Push
+
+```bash
+cd ~/mcp-intro
+source .venv/bin/activate
+
+python -m json.tool data/topics.json > /dev/null
+python -m py_compile server/learning_server.py client/mcp_client.py client/agent.py
+fastmcp list server/learning_server.py --resources
+
+git remote -v
+git status
+git add server/learning_server.py README.md
+git commit -m "Add read-only topic catalogue resource"
+git push origin main
+```
+
 ## Real-World Use Case
 
-A student asks an AI tutor to explain Python methods. The agent first calls `search_topics("methods")` and receives several compact candidates. It chooses `python-classes`, then calls `get_topic_details("python-classes")` to retrieve the prerequisites, full key concepts, common mistakes and practice exercise before answering the student.
+A learning application first reads `topics://catalog` to build a simple topic menu. After the student chooses a topic id, the application calls `get_topic_details` to retrieve the complete learning information.
 
 ## Self-Validation
 
@@ -310,3 +361,14 @@ A student asks an AI tutor to explain Python methods. The agent first calls `sea
 - [x] The tool has a clear docstring.
 - [x] The lookup uses stable topic ids instead of titles.
 - [x] The tool does not crash for expected invalid lookup values.
+
+
+### Task 6 — Read-Only MCP Resource
+
+- [x] I implemented a read-only MCP resource.
+- [x] The resource has the clear URI `topics://catalog`.
+- [x] The resource returns the available topic ids and titles.
+- [x] The resource returns a JSON string produced by `json.dumps()`.
+- [x] The resource does not modify files or data.
+- [x] The resource has a clear docstring.
+- [x] The resource returns only the information needed to browse the catalogue.

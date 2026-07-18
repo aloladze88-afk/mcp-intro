@@ -86,6 +86,17 @@ def get_topic_details(topic_id: str) -> dict:
     }
 
 
+@mcp.resource("topics://catalog", mime_type="application/json")
+def get_topic_catalog() -> str:
+    """Return the available programming topic ids and titles as JSON."""
+    catalog = [
+        {"id": topic["id"], "title": topic["title"]}
+        for topic in _load_topics()
+    ]
+
+    return json.dumps(catalog)
+
+
 if __name__ == "__main__":
     # Start the server with FastMCP's default stdio transport.
     mcp.run()
