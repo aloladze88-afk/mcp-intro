@@ -15,6 +15,7 @@ This beginner project demonstrates how to build a small Model Context Protocol (
 - Task 6 — Read-only topic catalogue resource: complete
 - Task 7 — Direct MCP server testing: complete
 - Task 8 — Simple MCP-connected agent: complete
+- Task 9 — Third-party MCP server review: complete
 
 ## Project Structure
 
@@ -255,6 +256,80 @@ Practice idea: Create a function that receives two numbers and returns their tot
 A question about an unavailable topic, such as Python decorators, produces a
 clear no-match response instead of inventing information.
 
+## Third-Party MCP Server Review: Filesystem Server
+
+For Task 9, I reviewed the official reference **Filesystem MCP Server** from
+the `modelcontextprotocol/servers` repository. I inspected its README, tool
+list, access-control explanation and local configuration example. I did not
+grant it access to personal files.
+
+### What the server does
+
+The server exposes controlled filesystem operations to an MCP client. It can
+read files, inspect directories and metadata, search files, create directories,
+write or edit files, and move files or directories.
+
+### Where it runs
+
+It runs **locally** as a Node.js process and normally communicates with the MCP
+client through stdio. It can be started with `npx` or Docker.
+
+### Exposed capabilities
+
+The documented tools include:
+
+- `read_text_file`, `read_media_file` and `read_multiple_files`;
+- `list_directory`, `list_directory_with_sizes` and `directory_tree`;
+- `search_files` and `get_file_info`;
+- `create_directory`, `write_file`, `edit_file` and `move_file`;
+- `list_allowed_directories`.
+
+The reviewed documentation describes tools rather than MCP resources.
+
+### Permissions and credentials
+
+The server does not require an API key or personal account credential. It does
+require explicit directory access. The allowed directories are supplied as
+command-line arguments or through MCP Roots. The process runs with the current
+user's filesystem permissions inside those allowed directories.
+
+A deliberately restricted example would be:
+
+```json
+{
+  "mcpServers": {
+    "filesystem-review": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/tmp/mcp-filesystem-review"
+      ]
+    }
+  }
+}
+```
+
+### Risk
+
+If the server is given access to a broad directory such as the home folder, an
+AI application could read sensitive files or overwrite, edit or move important
+files. The `write_file`, `edit_file` and `move_file` tools can change data.
+
+### Safety measure
+
+I would create a dedicated test directory containing only disposable files and
+grant access only to that directory. I would inspect the allowed directories
+with `list_allowed_directories`, use dry-run mode before edits, and prefer a
+read-only Docker mount when write access is unnecessary. I would never expose
+the entire home directory, SSH keys, browser profiles, password stores or
+project secrets.
+
+### Sources reviewed
+
+- Filesystem server README: `https://github.com/modelcontextprotocol/servers/tree/main/src/filesystem`
+- MCP local-server guide: `https://modelcontextprotocol.io/docs/develop/connect-local-servers`
+
 ## Concepts to Remember
 
 - A summary tool helps discover possible results.
@@ -274,6 +349,8 @@ clear no-match response instead of inventing information.
 - Calling tools through `Client` proves that MCP is being used.
 - Importing server tool functions directly would bypass MCP and fail the task.
 - Tool results should be treated as the source of topic-specific information.
+- Third-party MCP servers should be inspected before they are installed or connected.
+- Filesystem access should be limited to the smallest safe directory.
 
 ## Requirements
 
@@ -543,3 +620,15 @@ server functions directly.
 - [x] A no-match result is stated clearly.
 - [x] I saved a real sample response in `output/sample_agent_response.md`.
 - [x] I documented how to run and validate the agent.
+
+### Task 9 — Third-Party MCP Server Review
+
+- [x] I selected one third-party MCP server.
+- [x] I described what the server does.
+- [x] I identified that it runs locally.
+- [x] I identified the tools it exposes.
+- [x] I identified its required filesystem permissions.
+- [x] I confirmed that it does not require personal credentials.
+- [x] I described the risk of broad read and write access.
+- [x] I described a restricted-directory safety measure.
+- [x] I documented the review in `README.md`.
