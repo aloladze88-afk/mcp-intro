@@ -10,6 +10,7 @@ This beginner project demonstrates how to build a small Model Context Protocol (
 - Task 1 — MCP architecture explanation: complete
 - Task 2 — Basic FastMCP server: complete
 - Task 3 — Local topic dataset: complete
+- Task 4 — First MCP tool: complete
 
 ## Project Structure
 
@@ -52,24 +53,9 @@ Student → MCP host → MCP client → MCP server → tool or resource
 
 ## Basic FastMCP Server
 
-The server is created in `server/learning_server.py`:
+The server is created in `server/learning_server.py`. `FastMCP(...)` creates the server, while `mcp.run()` starts it. The `if __name__ == "__main__":` condition means the server starts when this file is run directly.
 
-```python
-"""Minimal FastMCP server for programming-learning capabilities."""
-
-from fastmcp import FastMCP
-
-
-# Create the MCP server instance.
-mcp = FastMCP("Programming Learning Server")
-
-
-if __name__ == "__main__":
-    # Start the server with FastMCP's default stdio transport.
-    mcp.run()
-```
-
-`FastMCP(...)` creates the server, while `mcp.run()` starts it. The `if __name__ == "__main__":` condition means the server starts when this file is run directly. FastMCP uses standard input and output, called stdio, by default. Ordinary debug messages should not be printed to stdout because they can interfere with MCP communication.
+FastMCP uses standard input and output, called stdio, by default. Ordinary debug messages should not be printed to stdout because they can interfere with MCP communication.
 
 ## Local Topic Dataset
 
@@ -92,6 +78,32 @@ Each topic contains:
 - `practice_idea`
 
 The file uses a top-level `topics` list so the MCP server can load and search the records in later tasks.
+
+## First MCP Tool: `search_topics`
+
+The server now exposes a tool named `search_topics` using the `@mcp.tool` decorator.
+
+The tool:
+
+- receives a `query` string;
+- reads `data/topics.json`;
+- searches topic titles and key concepts;
+- ignores differences between uppercase and lowercase letters;
+- returns at most three compact matches;
+- returns each match's `id`, `title`, `summary`, `prerequisites` and `key_concepts`;
+- returns a clear message when the query is blank or nothing matches.
+
+The tool is deterministic: the same dataset and query produce the same result. It does not use an AI model, external API or random value.
+
+Example searches:
+
+```text
+functions
+methods
+exception
+```
+
+A search for `functions` returns the Python Functions topic. A search for `methods` can return Lists, Dictionaries and Classes because those topics contain that key concept.
 
 ## Requirements
 
@@ -141,9 +153,34 @@ Expected result:
 5
 ```
 
+## Validate the Server and Tool
+
+Check the Python syntax:
+
+```bash
+cd ~/mcp-intro
+python -m py_compile server/learning_server.py
+```
+
+Start the MCP server:
+
+```bash
+python server/learning_server.py
+```
+
+The server should start and wait for MCP communication. Stop it with `Ctrl+C`.
+
+To inspect the registered tool interactively, run:
+
+```bash
+fastmcp dev server/learning_server.py
+```
+
+Then call `search_topics` with a query such as `functions` or `methods`.
+
 ## Real-World Use Case
 
-A programming tutor agent could ask the MCP server for the topic `python-functions`. The server could return its summary, prerequisites, common mistakes and practice idea without putting all learning content directly inside the agent prompt.
+A student could ask a programming tutor agent for help with methods. The agent could call `search_topics("methods")`, examine the returned summaries and key concepts, and decide whether Lists, Dictionaries or Classes is the most relevant lesson.
 
 ## Self-Validation
 
@@ -193,3 +230,15 @@ A programming tutor agent could ask the MCP server for the topic `python-functio
 - [x] Each topic has `common_mistakes`.
 - [x] Each topic has a `practice_idea`.
 - [x] The JSON file is valid.
+
+### Task 4 — First MCP Tool
+
+- [x] I implemented the `search_topics` tool.
+- [x] The tool receives a query string.
+- [x] The tool reads from `data/topics.json`.
+- [x] The tool searches topic titles and key concepts.
+- [x] The tool returns matching topic information.
+- [x] The tool limits the result to a small number of matches.
+- [x] The tool handles blank and no-match queries clearly.
+- [x] The tool has a clear docstring.
+- [x] The tool is deterministic.
