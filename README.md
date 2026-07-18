@@ -13,6 +13,8 @@ This beginner project demonstrates how to build a small Model Context Protocol (
 - Task 4 — First MCP tool: complete
 - Task 5 — Topic details tool: complete
 - Task 6 — Read-only topic catalogue resource: complete
+- Task 7 — Direct MCP server testing: complete
+- Task 8 — Simple MCP-connected agent: complete
 
 ## Project Structure
 
@@ -24,7 +26,8 @@ mcp-intro/
 ├── client/
 │   ├── __init__.py
 │   ├── mcp_client.py
-│   └── agent.py
+│   ├── agent.py
+│   └── test_server.py
 ├── data/
 │   └── topics.json
 ├── output/
@@ -155,6 +158,103 @@ Example returned data:
 ]
 ```
 
+## Direct Server Test: `client/test_server.py`
+
+Task 7 adds a small FastMCP client that connects to the local server through
+stdio and tests it before any agent is involved.
+
+The script verifies that:
+
+- the server starts and responds to a ping;
+- `search_topics` and `get_topic_details` are listed;
+- `search_topics` returns a valid match;
+- `get_topic_details` returns a complete topic record;
+- blank and unknown inputs return understandable messages;
+- `topics://catalog` is listed and can be read;
+- the catalogue contains five ids and titles.
+
+Run the direct integration test:
+
+```bash
+cd ~/mcp-intro
+source .venv/bin/activate
+python client/test_server.py
+```
+
+Sample successful output:
+
+```text
+[PASS] Server started and responded to ping.
+[PASS] Tools are visible: ['get_topic_details', 'search_topics']
+[PASS] search_topics returned: Python Functions
+[PASS] get_topic_details returned the full record for: Python Functions
+[PASS] Resource is visible: topics://catalog
+[PASS] Catalogue resource returned 5 topics.
+All MCP server tests passed.
+```
+
+## Simple MCP-Connected Agent: `client/agent.py`
+
+Task 8 adds a deterministic agent-like client. It connects to the MCP server
+through FastMCP's stdio client and never imports the server tools directly.
+
+The program:
+
+- receives a programming topic or student question;
+- extracts useful search terms from the question;
+- calls `search_topics` through MCP;
+- selects the first relevant topic returned by the server;
+- calls `get_topic_details` through MCP;
+- formats a short student-facing Markdown answer;
+- saves the answer in `output/sample_agent_response.md`;
+- clearly reports when the local dataset has no matching topic.
+
+Interaction flow:
+
+```text
+Student question
+        ↓
+client/agent.py
+        ↓
+FastMCP Client over stdio
+        ↓
+Programming Learning Server
+        ↓
+search_topics → get_topic_details
+        ↓
+data/topics.json
+```
+
+Run the agent with a question:
+
+```bash
+cd ~/mcp-intro
+source .venv/bin/activate
+python client/agent.py "I want to study Python functions. What should I review first?"
+```
+
+You can also run it without an argument and enter a question when prompted:
+
+```bash
+python client/agent.py
+```
+
+A successful response contains the recommended topic, its relevance,
+prerequisites, key concepts, practice idea and common mistakes. The response is
+also written to `output/sample_agent_response.md`.
+
+Sample result:
+
+```text
+Recommended topic: Python Functions
+Prerequisites: Variables; Basic Python syntax
+Key concepts: Defining functions; Parameters and arguments; Return values
+Practice idea: Create a function that receives two numbers and returns their total.
+```
+
+A question about an unavailable topic, such as Python decorators, produces a
+clear no-match response instead of inventing information.
+
 ## Concepts to Remember
 
 - A summary tool helps discover possible results.
@@ -167,6 +267,13 @@ Example returned data:
 - A resource URI gives clients a stable address for the data.
 - Read-only resources should not modify files, records or application state.
 - `json.dumps()` converts Python data into a JSON string.
+- Testing the server directly separates MCP problems from later agent problems.
+- A FastMCP `Client` can start a local Python server through stdio.
+- Assertions make a test stop immediately when an expected result is missing.
+- An agent-like client can be deterministic; an LLM is not required.
+- Calling tools through `Client` proves that MCP is being used.
+- Importing server tool functions directly would bypass MCP and fail the task.
+- Tool results should be treated as the source of topic-specific information.
 
 ## Requirements
 
@@ -220,7 +327,7 @@ Expected result:
 
 ```bash
 cd ~/mcp-intro
-python -m py_compile server/learning_server.py
+python -m py_compile server/learning_server.py client/test_server.py client/agent.py
 ```
 
 No output means the file compiled successfully.
@@ -233,9 +340,21 @@ python server/learning_server.py
 
 The server should start and wait for MCP communication. Stop it with `Ctrl+C`.
 
-## Test the MCP Tools
+## Test the MCP Server Directly
 
-Open the FastMCP development interface:
+Run the cumulative FastMCP client test:
+
+```bash
+cd ~/mcp-intro
+source .venv/bin/activate
+python client/test_server.py
+```
+
+This one command starts the server through stdio, lists its tools and
+resources, calls both tools, checks invalid inputs and reads the catalogue.
+
+You can also inspect the server manually with the FastMCP development
+interface:
 
 ```bash
 cd ~/mcp-intro
@@ -269,6 +388,25 @@ fastmcp list server/learning_server.py --resources
 
 Read `topics://catalog` from an MCP client or the FastMCP development interface. It should return valid JSON containing exactly the five available topic ids and titles.
 
+## Run and Validate the Agent
+
+```bash
+cd ~/mcp-intro
+source .venv/bin/activate
+
+python client/agent.py "I want to study Python functions. What should I review first?"
+cat output/sample_agent_response.md
+```
+
+Test the no-match behaviour:
+
+```bash
+python client/agent.py "I want to study Python decorators. What should I review first?"
+```
+
+The first command should call both MCP tools and save a complete recommendation.
+The second command should explain that no matching local topic was found.
+
 ## Git Validation, Commit and Push
 
 ```bash
@@ -276,19 +414,23 @@ cd ~/mcp-intro
 source .venv/bin/activate
 
 python -m json.tool data/topics.json > /dev/null
-python -m py_compile server/learning_server.py client/mcp_client.py client/agent.py
-fastmcp list server/learning_server.py --resources
+python -m py_compile server/learning_server.py client/mcp_client.py client/agent.py client/test_server.py
+python client/test_server.py
+python client/agent.py "I want to study Python functions. What should I review first?"
 
 git remote -v
 git status
-git add server/learning_server.py README.md
-git commit -m "Add read-only topic catalogue resource"
+git add client/agent.py output/sample_agent_response.md README.md
+git commit -m "Connect simple agent to MCP server"
 git push origin main
 ```
 
 ## Real-World Use Case
 
-A learning application first reads `topics://catalog` to build a simple topic menu. After the student chooses a topic id, the application calls `get_topic_details` to retrieve the complete learning information.
+A student asks what to review before learning Python functions. The agent-like
+client calls the MCP server, retrieves the complete Functions topic and creates
+a concise study recommendation without reading the dataset or importing the
+server functions directly.
 
 ## Self-Validation
 
@@ -372,3 +514,32 @@ A learning application first reads `topics://catalog` to build a simple topic me
 - [x] The resource does not modify files or data.
 - [x] The resource has a clear docstring.
 - [x] The resource returns only the information needed to browse the catalogue.
+
+
+### Task 7 — Direct MCP Server Testing
+
+- [x] I tested that the MCP server starts.
+- [x] I verified that the tools are visible.
+- [x] I tested `search_topics` with a valid query.
+- [x] I tested `get_topic_details` with a valid topic id.
+- [x] I tested blank and unknown invalid inputs.
+- [x] I tested that the catalogue resource is visible.
+- [x] I read and validated `topics://catalog`.
+- [x] I documented how to run the server test.
+- [x] I included sample successful output.
+
+### Task 8 — Simple MCP-Connected Agent
+
+- [x] I created `client/agent.py`.
+- [x] The agent receives a topic or student question.
+- [x] The agent connects to the server through a FastMCP client.
+- [x] The agent calls `search_topics` through MCP.
+- [x] The agent calls `get_topic_details` through MCP.
+- [x] The agent does not import the MCP server functions directly.
+- [x] The final response uses data returned by the MCP server.
+- [x] The response includes the recommended topic when available.
+- [x] The response includes relevance, prerequisites and key concepts.
+- [x] The response includes a practice idea and common mistakes.
+- [x] A no-match result is stated clearly.
+- [x] I saved a real sample response in `output/sample_agent_response.md`.
+- [x] I documented how to run and validate the agent.
