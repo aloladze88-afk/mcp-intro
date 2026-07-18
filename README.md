@@ -38,6 +38,56 @@ mcp-intro/
 - `.env.example`: example environment variables.
 - `.gitignore`: files Git must not commit.
 
+## MCP Architecture Summary
+
+MCP, or the Model Context Protocol, is a standard way for an AI application to connect to external tools and information without requiring a different custom integration for every system.
+
+The main parts are:
+
+- **MCP host:** the main AI application. It manages the conversation, the AI model, permissions, and connections to MCP servers.
+- **MCP client:** the connection component created by the host. Each client normally connects to one MCP server and sends requests between the host and that server.
+- **MCP server:** a separate program that provides specific capabilities, such as searching programming topics or reading a topic catalogue.
+- **Tools:** functions that perform an operation or return a calculated result. For example, `search_topics("decorators")` could search the dataset.
+- **Resources:** read-only information that the client can retrieve. For example, a resource could provide the complete programming-topic catalogue.
+
+A simple flow in this project is:
+
+```text
+Student asks a question
+        ↓
+MCP host runs the AI application
+        ↓
+MCP client sends a request
+        ↓
+MCP server uses a tool or provides a resource
+        ↓
+The result returns to the AI application
+```
+
+A server should expose only the capabilities it genuinely needs. This keeps the server simpler, reduces mistakes, and limits access to files, data, or actions that are not required.
+
+### What to remember
+
+- The **host** manages the complete AI experience.
+- The **client** connects the host to one server.
+- The **server** provides focused capabilities.
+- A **tool does something**.
+- A **resource provides information to read**.
+- Limiting server capabilities improves clarity and safety.
+
+### Real-world example
+
+A company support assistant could connect to a documentation MCP server. The server could provide a resource containing product manuals and a tool for searching them. The assistant could then answer a customer’s question without receiving access to unrelated company files.
+
+### Task 1 self-validation
+
+- [x] I explained what MCP is.
+- [x] I explained the role of an MCP host.
+- [x] I explained the role of an MCP client.
+- [x] I explained the role of an MCP server.
+- [x] I explained the difference between tools and resources.
+- [x] I used my own words.
+
 ## Setup
 
 Create a virtual environment:
